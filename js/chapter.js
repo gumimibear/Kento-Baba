@@ -46,7 +46,7 @@
   }).join('');
   var side =
     '<section class="wrap-narrow" style="padding-top:96px;padding-bottom:104px">' +
-      '<div class="sec-head dev" style="margin-bottom:36px"><div class="stack"><span class="kick">' + ui('sideA', { n: KB.pad(tracks.length) }) + '</span><h2 class="h2"><span class="mask"><span>' + ui('theWork') + '</span></span></h2></div><span class="micro">' + ui('hoverTrack') + '</span></div>' +
+      '<div class="sec-head dev" style="margin-bottom:36px"><div class="stack"><span class="kick">' + ui('sideA', { n: KB.pad(tracks.length) }) + '</span><h2 class="h2"><span class="mask"><span>' + ui('theWork') + '</span></span></h2></div><span class="micro mouse-only">' + ui('hoverTrack') + '</span></div>' +
       '<div class="trk-wrap"><ol class="trk stag">' + list + '</ol>' +
         '<aside class="pv dev" aria-live="polite"><div class="art"><canvas id="pv-cv" aria-hidden="true"></canvas></div>' +
           '<span class="pk" id="pv-k"></span><span class="pt" id="pv-t"></span><span class="pl" id="pv-l"></span><a class="cta" id="pv-a"></a></aside>' +
@@ -66,7 +66,7 @@
         '</div>' +
       '</div>' +
       '<div class="dev" style="padding:24px 0 96px">' +
-        '<div class="wrap-narrow" style="margin-bottom:32px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 40px"><span class="kick kick-amber">' + t(C.filmLabel) + '</span><span class="micro">' + ui('hoverPause') + '</span></div>' +
+        '<div class="wrap-narrow" style="margin-bottom:32px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 40px"><span class="kick kick-amber">' + t(C.filmLabel) + '</span>' + KB.rollHint() + '</div>' +
         KB.rollHTML(KB.frames(C.film, { count: 6 })) +
       '</div>' +
     '</section>';
@@ -96,6 +96,7 @@
   KB.pageByHash();
   KB.shootOnce();
   KB.reveal();
+  KB.rolls();
   KB.countUp();
 
   /* ---- motion ---- */

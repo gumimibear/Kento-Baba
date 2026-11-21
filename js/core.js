@@ -57,7 +57,12 @@
     return h ? decodeURIComponent(h) : null;
   };
   KB.pageByHash = function () {
-    window.addEventListener('hashchange', function () { window.location.reload(); });
+    // Going from one chapter/case to another: open the new one at the top.
+    window.addEventListener('hashchange', function () {
+      try { window.history.scrollRestoration = 'manual'; } catch (e) {}
+      window.scrollTo(0, 0);
+      window.location.reload();
+    });
   };
   KB.chapter = function (id) { return S.chapters.filter(function (c) { return c.id === id; })[0] || null; };
   KB.chapterIndex = function (id) { for (var i = 0; i < S.chapters.length; i++) if (S.chapters[i].id === id) return i; return -1; };
@@ -78,6 +83,8 @@
 
   /* ---------- motion preference ---------- */
   KB.reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // Phones and tablets (no mouse): no hover effects, lighter animation.
+  KB.touch = !!(window.matchMedia && window.matchMedia('(hover: none), (pointer: coarse)').matches);
 
   /* ---------- the 36-exposure roll ----------
      Each new page you open is one "shot". Clicking the landing hero is one too.
@@ -230,6 +237,78 @@
     return '<div class="rollwrap sprockets"><div class="roll">' + one + one + '</div></div>';
   };
 
+  KB.rollHint = function () {
+    return '<span class="micro roll-hint"><span class="mouse">' + KB.ui('rollMouse') + '</span><span class="touch">' + KB.ui('rollTouch') + '</span></span>';
+  };
+
+  /* ---------- film rolls: run by themselves; drag, swipe or scroll to move ---------- */
+  KB.rolls = function () {
+    document.querySelectorAll('.rollwrap').forEach(function (wrap) {
+      var roll = wrap.querySelector('.roll');
+      if (!roll) return;
+      var pos = 0, half = 0, speed = 50, hover = false, drag = null, idleUntil = 0, vis = true, fling = 0, lastT = 0;
+      var measure = function () { half = roll.scrollWidth / 2; };
+      var clamp = function () { if (half > 0) pos = ((pos % half) + half) % half; };
+      var apply = function () { roll.style.transform = 'translate3d(' + (-pos).toFixed(1) + 'px,0,0)'; };
+      measure();
+      if (window.ResizeObserver) new ResizeObserver(measure).observe(roll);
+      if (window.IntersectionObserver) new IntersectionObserver(function (en) { vis = en[0].isIntersecting; }).observe(wrap);
+      wrap.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') hover = true; });
+      wrap.addEventListener('pointerleave', function () { hover = false; });
+      wrap.addEventListener('pointerdown', function (e) {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        drag = { x: e.clientX, y: e.clientY, p: pos, id: e.pointerId, moved: false, lx: e.clientX, lt: performance.now(), v: 0 };
+        fling = 0;
+      });
+      wrap.addEventListener('pointermove', function (e) {
+        if (!drag || e.pointerId !== drag.id) return;
+        var dx = e.clientX - drag.x, dy = e.clientY - drag.y, now = performance.now();
+        if (!drag.moved) {
+          if (Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
+            drag.moved = true;
+            try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
+            wrap.classList.add('is-drag');
+          } else if (Math.abs(dy) > 10) { drag = null; return; }
+          else return;
+        }
+        var dt = Math.max(1, now - drag.lt);
+        drag.v = 0.7 * drag.v + 0.3 * ((e.clientX - drag.lx) / dt);
+        drag.lx = e.clientX; drag.lt = now;
+        pos = drag.p - dx; clamp(); apply();
+      });
+      var end = function () {
+        if (drag && drag.moved) fling = -drag.v * 1000;
+        drag = null;
+        wrap.classList.remove('is-drag');
+        idleUntil = performance.now() + 1800;
+      };
+      wrap.addEventListener('pointerup', end);
+      wrap.addEventListener('pointercancel', end);
+      wrap.addEventListener('dragstart', function (e) { e.preventDefault(); });
+      wrap.addEventListener('wheel', function (e) {
+        var d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : (e.shiftKey ? e.deltaY : 0);
+        if (!d) return;
+        e.preventDefault();
+        fling = 0; pos += d; clamp(); apply();
+        idleUntil = performance.now() + 1500;
+      }, { passive: false });
+      var tick = function (ts) {
+        var dt = lastT ? Math.min(0.05, (ts - lastT) / 1000) : 0;
+        lastT = ts;
+        if (vis && !drag) {
+          if (fling) {
+            pos += fling * dt;
+            fling *= Math.pow(0.04, dt);
+            if (Math.abs(fling) < 8) fling = 0;
+          } else if (!hover && !KB.reduce && ts > idleUntil) pos += speed * dt;
+          clamp(); apply();
+        }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  };
+
   /* ---------- canvas helpers ---------- */
   KB.rgb = function (hex) {
     var m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
@@ -242,7 +321,7 @@
     if (!el) return null;
     var w = el.clientWidth, h = el.clientHeight;
     if (!w || !h) return null;
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var dpr = Math.min(window.devicePixelRatio || 1, KB.touch ? 1.5 : 2);
     el.width = Math.round(w * dpr);
     el.height = Math.round(h * dpr);
     var ctx = el.getContext('2d');
@@ -282,9 +361,10 @@
       if (!st.ctx) continue;
       var m = st.m;
       m.a += ((KB.reduce ? 0 : m.on) - m.a) * (st.impl.ease || 0.08);
-      if (KB.reduce && !st.dirty) continue;
+      if ((KB.reduce || st.impl.still) && !st.dirty) continue;
       if (!st.vis && !st.dirty) continue;
-      if (st.impl.every && frameNo % st.impl.every && !st.dirty) continue;
+      var every = st.impl.every || (KB.touch ? 2 : 0);
+      if (every && frameNo % every && !st.dirty) continue;
       if (st.t0 === null) st.t0 = ts;
       st.age = KB.reduce ? 99 : (ts - st.t0) * 0.001;
       st.dirty = false;
