@@ -179,15 +179,15 @@
      Noise "tunes in" to the word on hover (hvT = 1).                      */
   V.ascii = function (word, seed) {
     var self = {
-      every: 2, pointer: false, word: String(word || ''), hv: 0, hvT: 0,
+      every: 2, pointer: false, word: String(word || ''), hv: KB.touch ? 1 : 0, hvT: KB.touch ? 1 : 0, still: KB.touch,
       layout: function (st) { st.mask = KB.makeMask(st.w, st.h, self.word); },
       setWord: function (st, w) {
         if (w === self.word) return;
         self.word = String(w || '');
         if (st.w) st.mask = KB.makeMask(st.w, st.h, self.word);
-        self.hv = KB.reduce ? 1 : 0; self.hvT = 1; st.dirty = true;
+        self.hv = (KB.reduce || KB.touch) ? 1 : 0; self.hvT = 1; st.dirty = true;
       },
-      hover: function (st, on) { self.hvT = on ? 1 : 0; if (KB.reduce) self.hv = self.hvT; st.dirty = true; },
+      hover: function (st, on) { if (KB.touch) return; self.hvT = on ? 1 : 0; if (KB.reduce) self.hv = self.hvT; st.dirty = true; },
       draw: function (st, t) {
         var ctx = st.ctx, M = st.mask;
         if (!M) return;
@@ -234,17 +234,18 @@
           if (i < nd) {
             var a = Math.random() * TAU, rr = Math.sqrt(Math.random()) * st.disc.r;
             var hx = st.disc.x + Math.cos(a) * rr, hy = st.disc.y + Math.sin(a) * rr;
-            st.nodes.push({ disc: true, hx: hx, hy: hy, x: hx, y: hy, ph: Math.random() * TAU, r: 1.3 + Math.random() * 1.9, born: 0.3 + (rr / st.disc.r) * 2.6 + Math.random() * 0.4 });
+            st.nodes.push({ disc: true, hx: hx, hy: hy, x: hx, y: hy, ph: Math.random() * TAU, r: 1.3 + Math.random() * 1.9, born: 0.05 + (rr / st.disc.r) * 0.9 + Math.random() * 0.25 });
           } else {
-            st.nodes.push({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25, r: 1.2 + Math.random() * 2, born: Math.random() * 3.2, mint: Math.random() < 0.14 });
+            st.nodes.push({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25, r: 1.2 + Math.random() * 2, born: Math.random() * 1.4, mint: Math.random() < 0.14 });
           }
         }
-        st.t0 = null;
+        // start the sunrise once (re-sizing later doesn't restart it)
+        if (!st.sunStarted) { st.sunStarted = true; st.t0 = null; }
       },
       draw: function (st, t) {
         var ctx = st.ctx, w = st.w, h = st.h, m = st.m, age = st.age, R = KB.reduce;
         backdrop(ctx, w, h, t, { gy: 0.34, ga: 0.62 });
-        var grow = Math.min(1, age / 3.2), D0 = st.disc, breathe = R ? 1 : 1 + 0.03 * Math.sin(t * 0.8);
+        var grow = Math.min(1, age / 1.2), D0 = st.disc, breathe = R ? 1 : 1 + 0.03 * Math.sin(t * 0.8);
         var sg = ctx.createRadialGradient(D0.x, D0.y, 0, D0.x, D0.y, D0.r * 1.55 * breathe);
         sg.addColorStop(0, 'rgba(' + SUN + ',' + (0.42 * grow).toFixed(3) + ')');
         sg.addColorStop(0.6, 'rgba(' + SUN + ',' + (0.16 * grow).toFixed(3) + ')');
@@ -257,7 +258,7 @@
         var D = Math.max(80, Math.min(130, w * 0.085)), live = [], i, j, p;
         for (i = 0; i < st.nodes.length; i++) {
           p = st.nodes[i];
-          var vis = Math.max(0, Math.min(1, (age - p.born) / 0.8));
+          var vis = Math.max(0, Math.min(1, (age - p.born) / 0.5));
           if (vis <= 0) continue;
           var dx, dy, d2;
           if (p.disc) {
@@ -305,7 +306,7 @@
           ctx.beginPath(); ctx.arc(p.x, p.y, p.r * pulse, 0, TAU); ctx.fill();
         }
         veil(ctx, w, h);
-        if (!R && age < 4.5) st.dirty = true;
+        if (!R && age < 2.5) st.dirty = true;
       }
     };
   };

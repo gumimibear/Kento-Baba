@@ -41,7 +41,7 @@
   /* ---- film roll ---- */
   var film =
     '<section class="filmsec dev">' +
-      '<div class="wrap-read" style="margin-bottom:36px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:8px 40px"><span class="kick kick-amber">' + t(P.filmLabel) + '</span><span class="micro" style="color:var(--p-muted)">' + ui('hoverPause') + '</span></div>' +
+      '<div class="wrap-read" style="margin-bottom:36px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:8px 40px"><span class="kick kick-amber">' + t(P.filmLabel) + '</span>' + KB.rollHint() + '</div>' +
       KB.rollHTML(KB.frames(P.film, { count: 6, placeholders: P.filmPlaceholders })) +
     '</section>';
 
@@ -98,6 +98,7 @@
   KB.pageByHash();
   KB.shootOnce();
   KB.reveal();
+  KB.rolls();
   KB.heroScroll(document.querySelector('.dhero'));
   var v = hdr.visual === 'stage' ? KB.vis.stage() : KB.vis.bubbles(hdr.route);
   KB.canvas(document.getElementById('head-cv'), v);

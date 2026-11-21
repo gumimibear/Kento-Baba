@@ -33,8 +33,8 @@
   /* ---- sticky nav ---- */
   var sticky =
     '<header class="sticky" aria-label="Site"><div class="in wrap">' + logo +
-      '<nav aria-label="Sections">' + navs.map(function (n) { return '<a class="nl" data-sec="' + n[1] + '" href="' + n[0] + '">' + ui(n[2]) + '</a>'; }).join('') +
-        '<span style="color:var(--muted);flex:none">EXP ' + KB.expLabel() + '/36</span>' + KB.langBtn() + '</nav>' +
+      '<nav class="snav" aria-label="Sections">' + navs.map(function (n) { return '<a class="nl" data-sec="' + n[1] + '" href="' + n[0] + '">' + ui(n[2]) + '</a>'; }).join('') + '</nav>' +
+      '<span class="roll-count">EXP ' + KB.expLabel() + '/36</span>' + KB.langBtn() +
     '</div></header>';
 
   /* ---- intro ---- */
@@ -62,7 +62,7 @@
   var work =
     '<section id="work" class="sec wrap">' +
       '<div class="glow" aria-hidden="true" style="width:700px;height:500px;left:10%;top:120px;background:var(--b);opacity:.12"></div>' +
-      '<div class="sec-head dev" style="position:relative;z-index:1"><div class="stack"><span class="kick">' + ui('workKick') + '</span><h2 class="h2"><span class="mask"><span>' + ui('workHead') + '</span></span></h2></div><span class="kick">' + ui('workHint') + '</span></div>' +
+      '<div class="sec-head dev" style="position:relative;z-index:1"><div class="stack"><span class="kick">' + ui('workKick') + '</span><h2 class="h2"><span class="mask"><span>' + ui('workHead') + '</span></span></h2></div><span class="kick mouse-only">' + ui('workHint') + '</span></div>' +
       '<div class="cards stag">' + cards + '</div>' +
     '</section>';
 
@@ -82,9 +82,9 @@
   var sets =
     '<section id="sets" class="sec wrap split">' +
       '<div class="stack dev"><span class="kick">' + ui('expKick') + '</span><h2 class="h2"><span class="mask"><span>' + ui('expHead') + '</span></span></h2></div>' +
-      '<ol class="rows stag">' + S.experience.map(function (r) {
-        return '<li class="row"><span class="date ' + (r.current ? 'hi' : 'm') + '">' + t(r.date) + '</span>' +
-          '<span class="main"><span class="tt jt" style="font-size:20px">' + t(r.title) + '</span><span class="ln m">' + t(r.text) + '</span></span></li>';
+      '<ol class="xp stag" id="xp"><span class="fill" aria-hidden="true"></span>' + S.experience.map(function (r) {
+        return '<li><span class="dot" aria-hidden="true"></span><span class="dt">' + t(r.date) + (r.current ? '<span class="now">' + ui('now') + '</span>' : '') + '</span>' +
+          '<span class="tt jt">' + t(r.title) + '</span><span class="tx">' + t(r.text) + '</span></li>';
       }).join('') + '</ol>' +
     '</section>';
 
@@ -140,9 +140,9 @@
     var shown = state.more ? list : list.slice(0, 6);
     var html = shown.map(function (c, k) {
       var href = KB.caseHref(c) || (KB.chapter(c.chapter) ? KB.chapterHref(c.chapter) : null);
-      var tag = KB.L((S.chapterTags || {})[c.chapter]) + ' · ' + KB.cat(c.category);
+      var tag = href ? KB.L((S.chapterTags || {})[c.chapter]) + ' · ' + KB.cat(c.category) : KB.cat(c.category) + ' · ' + KB.L({ en: 'SOON', ja: '準備中' });
       var inner = '<span class="n m">' + KB.pad(k + 1) + '</span><span class="main"><span class="tt jt">' + t(c.title) + '</span><span class="ln m">' + t(c.line) + '</span></span><span class="tag hi">' + esc(tag) + '</span>';
-      return href ? '<a class="row" href="' + esc(href) + '">' + inner + '</a>' : '<div class="row">' + inner + '</div>';
+      return href ? '<a class="row" href="' + esc(href) + '">' + inner + '</a>' : '<div class="row is-soon">' + inner + '</div>';
     }).join('');
     if (!list.length) {
       var catName = KB.cat(state.cat);
@@ -172,6 +172,7 @@
   /* ---- motion ---- */
   KB.reveal();
   KB.clock();
+  var xpEl = document.getElementById('xp');
   var heroEl = document.querySelector('.hero'), lensEl = document.getElementById('lens'), stickyEl = document.querySelector('.sticky');
   KB.heroScroll(heroEl);
   KB.onScroll(function (y, vh) {
@@ -184,6 +185,10 @@
       if (el && el.getBoundingClientRect().top < vh * 0.4) act = id === 'archive' ? 'work' : id;
     });
     stickyEl.querySelectorAll('.nl').forEach(function (a) { a.classList.toggle('is-act', a.getAttribute('data-sec') === act); });
+    // experience timeline fills as you scroll; each dot lights up as the line reaches it
+    var xr = xpEl.getBoundingClientRect(), xp = Math.max(0, Math.min(1, (vh * 0.6 - xr.top) / Math.max(1, xr.height)));
+    xpEl.style.setProperty('--xp', xp.toFixed(3));
+    xpEl.querySelectorAll('li').forEach(function (li) { li.classList.toggle('on', li.getBoundingClientRect().top + 10 < vh * 0.6); });
   });
 
   // hero: liquid + click to take a shot
