@@ -330,24 +330,154 @@ window.SITE = {
 
     /* ===== PERSONAL (shows in the archive only) ===== */
     {
-      id: 'film-photography', chapter: 'personal', category: 'personal', link: 'index.html#lens',
-      title: { en: '35mm photography', ja: '35mmフィルム写真' },
-      line: { en: 'Shooting on film — see Through the lens below.', ja: 'フィルムでの撮影。下の「レンズ越しに」をご覧ください。' }
+      id: 'film-photography', chapter: 'personal', category: 'personal',
+      title: { en: 'Photography', ja: '写真' },
+      line: { en: 'Through the lens — street, people, places and nights.', ja: 'レンズ越しに — 街、人、風景、夜。' },
+      page: {
+        // The photography page. The landing page's "Through the lens" strip is the preview;
+        // this is the full collection.
+        layout: 'photo',
+        theme: 'focus',               // header: a camera viewfinder you can focus and shoot
+        word: 'PHOTOGRAPHY',
+        jp: '写真',
+        title: { en: 'Photography', ja: '写真' },
+        hook: { en: '[Why you shoot — in one line]', ja: '［写真を撮る理由 — ひとことで］' },
+        details: [
+          { label: { en: 'MAIN CAMERA', ja: 'メインカメラ' }, value: { en: 'Minolta 303si Super', ja: 'Minolta 303si Super' } },
+          { label: { en: 'FILM', ja: 'フィルム' }, value: { en: '[Favourite film stock]', ja: '［好きなフィルム］' } },
+          { label: { en: 'SINCE', ja: 'いつから' }, value: { en: '[Year]', ja: '［年］' } }
+        ],
+        cameraHead: { en: 'The camera', ja: 'カメラ' },
+        camera: 'MINOLTA 303si SUPER',
+        specs: [
+          { label: { en: 'FORMAT', ja: 'フォーマット' }, value: { en: '35mm film', ja: '35mmフィルム' } },
+          { label: { en: 'LENS', ja: 'レンズ' }, value: { en: '[Your lens]', ja: '［レンズ］' } },
+          { label: { en: 'FAVOURITE FILM', ja: '好きなフィルム' }, value: { en: '[Film stock, ISO]', ja: '［フィルム名・ISO］' } },
+          { label: { en: 'WHERE I GOT IT', ja: '入手したきっかけ' }, value: { en: '[A short story]', ja: '［ちょっとしたエピソード］' } }
+        ],
+        // The gallery inside the camera. Visitors can filter by these categories.
+        photoFilters: [
+          { id: 'street', en: 'Street', ja: 'ストリート' },
+          { id: 'people', en: 'People', ja: '人' },
+          { id: 'places', en: 'Places', ja: '風景' },
+          { id: 'night', en: 'Night', ja: '夜' }
+        ],
+        photos: [
+          // { src: 'images/photography/01.jpg', category: 'street', caption: { en: 'Shibuya, 2025', ja: '渋谷、2025' } },
+        ],
+        manifestoHead: { en: 'Why I shoot', ja: 'なぜ撮るのか' },
+        manifesto: { en: '[Why you shoot — film or digital, what you look for, and what it taught you about framing a story.]', ja: '［写真を撮る理由 — フィルムでもデジタルでも、何を見ているか、物語の切り取り方について学んだこと。］' },
+        featureHead: { en: 'Favourite frame', ja: 'お気に入りの一枚' },
+        feature: {
+          src: '',   // 'images/photography/favourite.jpg'
+          title: { en: '[Where and when]', ja: '［いつ、どこで］' },
+          story: { en: '[The story behind your favourite photo]', ja: '［お気に入りの写真の裏話］' }
+        },
+        closingHead: { en: 'What it brings to my work', ja: '仕事に活きていること' },
+        closing: { en: '[How photography shapes the way you see campaigns, content and stories]', ja: '［写真が、キャンペーンやコンテンツ、ストーリーの見方にどう影響しているか］' }
+      }
     },
     {
       id: 'personal-music', chapter: 'personal', category: 'personal',
       title: { en: '[Music]', ja: '［音楽］' },
-      line: { en: '[A mix, a playlist or a track you made — or delete this]', ja: '［ミックス、プレイリスト、制作した曲など — 不要なら削除］' }
+      line: { en: '[A mix, a playlist or a track you made — or delete this]', ja: '［ミックス、プレイリスト、制作した曲など — 不要なら削除］' },
+      page: {
+        // A personal page: big, playful, made to show your creative side.
+        // Delete this whole project if you don't want it.
+        layout: 'personal',
+        theme: 'vinyl',          // header artwork: vinyl / cloth / poster
+        word: 'MUSIC',            // the giant word in the header
+        jp: '音楽',                // the vertical Japanese next to it
+        title: { en: 'Music', ja: '音楽' },
+        hook: { en: '[What you listen to, play or make — and the sound you keep coming back to]', ja: '［聴いている音楽、演奏・制作しているもの、つい戻ってしまうサウンド］' },
+        details: [
+          { label: { en: 'SINCE', ja: 'いつから' }, value: { en: '[Year]', ja: '［年］' } },
+          { label: { en: 'GENRES', ja: 'ジャンル' }, value: { en: '[Techno, house…]', ja: '［テクノ、ハウス…］' } },
+          { label: { en: 'WHERE', ja: '場所' }, value: { en: '[Clubs, Spotify, vinyl…]', ja: '［クラブ、Spotify、レコード…］' } }
+        ],
+        marquee: [{ en: '[Genre]', ja: '［ジャンル］' }, { en: '[Favourite artist]', ja: '［好きなアーティスト］' }, { en: '[A record]', ja: '［レコード］' }, { en: '[A venue]', ja: '［会場］' }],
+        manifestoHead: { en: 'Why I love it', ja: '好きな理由' },
+        manifesto: { en: '[Why music matters to you — how you got into it, what it feels like, the moment it clicked. Write it like you would say it.]', ja: '［音楽が自分にとって大切な理由 — きっかけ、感じること、ハマった瞬間。話すように書いてください。］' },
+        filmLabel: { en: 'ON FILM — NIGHTS, RECORDS, SETS', ja: 'フィルム — 夜、レコード、セット' },
+        film: [],   // { src: 'images/vinyl/01.jpg', caption: { en: '…', ja: '…' } }  — 6 photos look best
+        favouritesHead: { en: 'On repeat', ja: 'ヘビロテ' },  // the player
+        tracks: [   // the "On repeat" player. length like '3:45'. Optional: link (Spotify/YouTube), cover image, audio clip (mp3)
+          { title: { en: '[Track]', ja: '［曲名］' }, artist: '[Artist]', length: '[3:45]', link: '', cover: '', audio: '' },
+          { title: { en: '[Track]', ja: '［曲名］' }, artist: '[Artist]', length: '[4:12]', link: '', cover: '', audio: '' },
+          { title: { en: '[Track]', ja: '［曲名］' }, artist: '[Artist]', length: '[6:30]', link: '', cover: '', audio: '' },
+          { title: { en: '[Track]', ja: '［曲名］' }, artist: '[Artist]', length: '[5:05]', link: '', cover: '', audio: '' }
+        ],
+        closingHead: { en: 'What it brings to my work', ja: '仕事に活きていること' },
+        closing: { en: '[How music shapes the way you think about rhythm, mood and audiences — in events and content]', ja: '［音楽が、イベントやコンテンツでのリズム、ムード、オーディエンスの考え方にどう影響しているか］' }
+      }
     },
     {
       id: 'personal-fashion', chapter: 'personal', category: 'personal',
       title: { en: '[Fashion]', ja: '［ファッション］' },
-      line: { en: '[Styling, a lookbook, a brand you love and why — or delete this]', ja: '［スタイリング、ルックブック、好きなブランドとその理由など — 不要なら削除］' }
+      line: { en: '[Styling, a lookbook, a brand you love and why — or delete this]', ja: '［スタイリング、ルックブック、好きなブランドとその理由など — 不要なら削除］' },
+      page: {
+        // A personal page: big, playful, made to show your creative side.
+        // Delete this whole project if you don't want it.
+        layout: 'personal',
+        theme: 'halftone',       // header: an abstract printed pattern
+        style: 'editorial',     // an elegant magazine-style page
+        word: 'FASHION',            // the giant word in the header
+        jp: '服',                // the vertical Japanese next to it
+        title: { en: 'Fashion', ja: 'ファッション' },
+        hook: { en: '[Your style in one line — and the brands or eras that shape it]', ja: '［自分のスタイルをひとことで — 影響を受けたブランドや時代］' },
+        details: [
+          { label: { en: 'SINCE', ja: 'いつから' }, value: { en: '[Year]', ja: '［年］' } },
+          { label: { en: 'STYLE', ja: 'スタイル' }, value: { en: '[Three words]', ja: '［3つの言葉で］' } },
+          { label: { en: 'WHERE', ja: '場所' }, value: { en: '[Shops, streets, cities]', ja: '［お店、街、都市］' } }
+        ],
+        marquee: [{ en: '[Brand]', ja: '［ブランド］' }, { en: '[Designer]', ja: '［デザイナー］' }, { en: '[An era]', ja: '［時代］' }, { en: '[A piece you love]', ja: '［好きな一着］' }],
+        manifestoHead: { en: 'Why I love it', ja: '好きな理由' },
+        manifesto: { en: '[What fashion means to you — how you dress, where your ideas come from, and what a good outfit says without words.]', ja: '［ファッションとは何か — 服の選び方、アイデアの源、言葉なしで伝わること。］' },
+        filmLabel: { en: 'The lookbook', ja: 'ルックブック' },
+        film: [],   // { src: 'images/cloth/01.jpg', caption: { en: '…', ja: '…' } }  — 6 photos look best
+        favouritesHead: { en: 'Brands I love', ja: '好きなブランド' },
+        favourites: [   // add src: 'images/…jpg' to show a photo when someone hovers the line
+          { title: { en: '[Brand]', ja: '［ブランド］' }, note: { en: '[One line on why]', ja: '［理由をひとこと］' } },
+          { title: { en: '[Brand]', ja: '［ブランド］' }, note: { en: '[One line on why]', ja: '［理由をひとこと］' } },
+          { title: { en: '[Brand]', ja: '［ブランド］' }, note: { en: '[One line on why]', ja: '［理由をひとこと］' } }
+        ],
+        closingHead: { en: 'What it brings to my work', ja: '仕事に活きていること' },
+        closing: { en: '[How fashion shapes the way you think about image, identity and brand storytelling]', ja: '［ファッションが、イメージ、アイデンティティ、ブランドストーリーの考え方にどう影響しているか］' }
+      }
     },
     {
       id: 'personal-design', chapter: 'personal', category: 'personal',
       title: { en: '[Design]', ja: '［デザイン］' },
-      line: { en: '[Posters, graphics, anything you designed for fun — or delete this]', ja: '［ポスター、グラフィックなど、趣味でデザインしたもの — 不要なら削除］' }
+      line: { en: '[Posters, graphics, anything you designed for fun — or delete this]', ja: '［ポスター、グラフィックなど、趣味でデザインしたもの — 不要なら削除］' },
+      page: {
+        // A personal page: big, playful, made to show your creative side.
+        // Delete this whole project if you don't want it.
+        layout: 'personal',
+        theme: 'poster',          // header artwork: vinyl / cloth / poster
+        style: 'art',           // the most experimental page
+        word: 'DESIGN',            // the giant word in the header
+        jp: '意匠',                // the vertical Japanese next to it
+        title: { en: 'Design', ja: 'デザイン' },
+        hook: { en: '[Posters, graphics and things you designed just for fun]', ja: '［趣味でデザインしたポスターやグラフィック］' },
+        details: [
+          { label: { en: 'SINCE', ja: 'いつから' }, value: { en: '[Year]', ja: '［年］' } },
+          { label: { en: 'TOOLS', ja: 'ツール' }, value: { en: 'Canva, Figma, [add more]', ja: 'Canva、Figma、［追加］' } },
+          { label: { en: 'INSPIRED BY', ja: '影響' }, value: { en: '[Designers, movements]', ja: '［デザイナー、ムーブメント］' } }
+        ],
+        marquee: [{ en: '[Poster]', ja: '［ポスター］' }, { en: '[Type]', ja: '［タイポグラフィ］' }, { en: '[Colour]', ja: '［色］' }, { en: '[A designer you love]', ja: '［好きなデザイナー］' }],
+        manifestoHead: { en: 'Why I love it', ja: '好きな理由' },
+        manifesto: { en: '[What you love about design — the first thing you made, what makes a design work, and what you notice that others miss.]', ja: '［デザインの好きなところ — 最初に作ったもの、良いデザインの条件、人が見落とすけど気づくこと。］' },
+        filmLabel: { en: 'The wall', ja: 'ウォール' },
+        film: [],   // { src: 'images/poster/01.jpg', caption: { en: '…', ja: '…' } }  — 6 photos look best
+        favouritesHead: { en: 'Favourite pieces', ja: 'お気に入りの作品' },
+        favourites: [   // add src: 'images/…jpg' to show a photo when someone hovers the line
+          { title: { en: '[Piece — year]', ja: '［作品 — 年］' }, note: { en: '[One line on why]', ja: '［理由をひとこと］' } },
+          { title: { en: '[Piece — year]', ja: '［作品 — 年］' }, note: { en: '[One line on why]', ja: '［理由をひとこと］' } },
+          { title: { en: '[Piece — year]', ja: '［作品 — 年］' }, note: { en: '[One line on why]', ja: '［理由をひとこと］' } }
+        ],
+        closingHead: { en: 'What it brings to my work', ja: '仕事に活きていること' },
+        closing: { en: '[How design shapes the way you build campaigns, posts and events]', ja: '［デザインが、キャンペーン、投稿、イベントづくりにどう活きているか］' }
+      }
     }
   ],
 
@@ -387,7 +517,7 @@ window.SITE = {
       toolKick: '05 — TOOLKIT', toolHead: 'Equipment',
       hello: 'Say hello', helloDot: '.', helloLine: 'English or 日本語 — either works.', resumePdf: 'RÉSUMÉ (PDF)',
       rollDone: 'ROLL COMPLETE — 36 / 36', rollLine: 'Let’s develop something together →',
-      allWork: '← ALL WORK', back: 'BACK', allWorkT: 'All work', hoverPause: 'HOVER TO PAUSE', rollMouse: 'DRAG OR SCROLL · HOVER TO PAUSE', rollTouch: 'SWIPE TO BROWSE', now: 'NOW',
+      allWork: '← ALL WORK', back: 'BACK', allWorkT: 'All work', hoverPause: 'HOVER TO PAUSE', rollMouse: 'DRAG OR SCROLL · HOVER TO PAUSE', seeRoll: 'SEE THE FULL COLLECTION', rollTouch: 'SWIPE TO BROWSE', now: 'NOW',
       sideA: 'SIDE A — {n} TRACKS', theWork: 'The work', hoverTrack: 'HOVER A TRACK TO PREVIEW',
       statusReady: 'CASE →', statusSoon: 'SOON', ctaReady: 'OPEN CASE →', ctaSoon: 'CASE COMING SOON',
       reflection: 'REFLECTION', prevChapter: '← PREVIOUS CHAPTER — {n}', nextChapter: 'NEXT CHAPTER — {n} →', loopChapter: 'BACK TO CHAPTER — {n} →',
@@ -405,7 +535,7 @@ window.SITE = {
       toolKick: '05 — スキル', toolHead: '使用ツール',
       hello: 'お気軽にご連絡を', helloDot: '。', helloLine: '日本語でも英語でも、どちらでも大丈夫です。', resumePdf: '履歴書（PDF）',
       rollDone: '撮り切り — 36 / 36', rollLine: '一緒に何かを「現像」しませんか →',
-      allWork: '← 実績一覧', back: '戻る', allWorkT: '実績一覧', hoverPause: 'ホバーで一時停止', rollMouse: 'ドラッグ・スクロールで移動 · ホバーで一時停止', rollTouch: 'スワイプで移動', now: '現在',
+      allWork: '← 実績一覧', back: '戻る', allWorkT: '実績一覧', hoverPause: 'ホバーで一時停止', rollMouse: 'ドラッグ・スクロールで移動 · ホバーで一時停止', seeRoll: '写真をもっと見る', rollTouch: 'スワイプで移動', now: '現在',
       sideA: 'SIDE A — {n}トラック', theWork: '取り組み', hoverTrack: 'ホバーでプレビュー',
       statusReady: 'ケース →', statusSoon: '準備中', ctaReady: 'ケースを見る →', ctaSoon: '準備中',
       reflection: '振り返り', prevChapter: '← 前のチャプター — {n}', nextChapter: '次のチャプター — {n} →', loopChapter: 'チャプター{n}に戻る →',

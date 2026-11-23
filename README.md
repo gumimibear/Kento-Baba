@@ -125,8 +125,12 @@ Siree filled in everything she knew. These are yours:
 - [ ] two more university projects (or delete the placeholders)
 - [ ] a highlight or award for the stats box (or replace it)
 
-**Personal**
-- [ ] Music / Fashion / Design — fill them in or delete them
+**Off duty pages**
+- [ ] Photography — photos (with categories), favourite frame, camera details, why film
+- [ ] Music — 4 tracks on repeat, why you love it
+- [ ] Fashion — lookbook photos, brands
+- [ ] Design — posters for the wall, favourite pieces
+- [ ] Or delete any you don't want
 
 ---
 
@@ -137,3 +141,17 @@ Siree filled in everything she knew. These are yours:
 - **Résumé:** replace `images/Kento_Baba_Resume.pdf` with a new file of the same name.
 - **Reduced motion:** visitors who turn off animations on their device get a still version automatically.
 - **Hosting:** GitHub Pages — Settings → Pages → Deploy from branch → `main` / root.
+
+---
+
+## 6. The Off duty pages (Photography, Music, Fashion, Design)
+
+These live in `cases` with `chapter: 'personal'`. Each one has its own look:
+
+- **Photography** (`layout: 'photo'`): add photos to `photos` — each one with `src`, a `category` (one of the `photoFilters` ids: street / people / places / night — rename or add your own) and a `caption`. They play inside the camera at the top of the page, with filter buttons. The labels around the camera come from `specs` and `details`. `feature` is your favourite frame — visitors can zoom into it like a map. The landing page's "Through the lens" strip (`film` near the bottom of content.js) is the preview; its button links here.
+- **Music**: `tracks` is the "On repeat" player. For each track: `title`, `artist`, `length` ('3:45'). Optional: `link` (Spotify / YouTube — shows a LISTEN ↗ button), `cover` (an image), `audio` (a short mp3 clip, so the play button really plays).
+- **Fashion** (`style: 'editorial'`): `film` becomes the lookbook (6 photos look best — they show in black & white until hovered). `favourites` are the brands.
+- **Design** (`style: 'art'`): `film` becomes "the wall" — pieces visitors can drag around. `favourites` are museum-style labels; add `src` to show the piece.
+
+Every page ends with `closing` — one line about what it brings to your work.
+To remove one of these pages, delete its whole block.
