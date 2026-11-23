@@ -919,18 +919,18 @@ body.pp-photo { background: #0B0A10; }
 
 /* landing: quick loading screen (first visit per session) */
 .loader { position: fixed; inset: 0; z-index: 120; display: flex; align-items: center; justify-content: center; pointer-events: all; }
-.loader .h { position: absolute; left: 0; right: 0; height: 50.5%; background: #0B0A12; transition: transform .7s cubic-bezier(.7,0,.2,1); }
+.loader .h { position: absolute; left: 0; right: 0; height: 50.5%; background: #0B0A12; transition: transform .55s cubic-bezier(.7,0,.2,1); }
 .loader .h.t { top: 0; } .loader .h.b { bottom: 0; }
 .loader.out .h.t { transform: translateY(-101%); }
 .loader.out .h.b { transform: translateY(101%); }
 .loader .in { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 22px; transition: opacity .25s ease; }
 .loader.out .in { opacity: 0; }
 .loader .iris { width: 120px; height: 120px; }
-.loader .iris g { transform-origin: 60px 60px; transition: transform 1.1s cubic-bezier(.6,0,.2,1); }
+.loader .iris g { transform-origin: 60px 60px; transition: transform .5s cubic-bezier(.6,0,.2,1); }
 .loader.open .iris g { transform: rotate(52deg) scale(1.35); }
 .loader .nm { font-family: var(--f-head); font-weight: 800; font-size: clamp(30px, 5vw, 56px); letter-spacing: -0.04em; color: var(--ink-hi); }
 .loader .ln { width: min(260px, 60vw); height: 1px; background: var(--line-2); position: relative; overflow: hidden; }
-.loader .ln i { position: absolute; inset: 0; background: var(--a); box-shadow: 0 0 10px var(--a); transform: scaleX(0); transform-origin: left; transition: transform 1.2s cubic-bezier(.3,.7,.2,1); }
+.loader .ln i { position: absolute; inset: 0; background: var(--a); box-shadow: 0 0 10px var(--a); transform: scaleX(0); transform-origin: left; transition: transform .85s cubic-bezier(.3,.7,.2,1); }
 .loader.go .ln i { transform: scaleX(1); }
 .loader .ct { display: flex; gap: 18px; font-family: var(--f-mono); font-size: 11px; letter-spacing: .16em; color: var(--muted); }
 .loader .ct b { font-weight: 500; color: var(--a); }
@@ -943,3 +943,21 @@ body.pp-photo { background: #0B0A10; }
   .pp-next:hover .big::after, .pp-next:focus-visible .big::after { clip-path: inset(-0.3em -0.2em -0.3em 0); }
 }
 .ph-h1 { padding: 0 .08em .16em 0; margin-bottom: -.16em; }
+
+/* photography on phones: tap the lens → a swipeable gallery inside the camera */
+.ph-hero.tapmode { height: 100vh; height: 100svh; }
+.tapmode .ph-stage { position: relative; }
+.tapmode .ph-reel { overflow: hidden; scrollbar-width: none; }
+.tapmode .ph-reel::-webkit-scrollbar { display: none; }
+.tapmode .ph-strip { gap: 4vw; padding: 24px 7vw; }
+.tapmode .ph-fr { width: 86vw; scroll-snap-align: center; filter: none; }
+.tapmode.inside .ph-reel { position: fixed; inset: 0; z-index: 90; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+.tapmode.inside .ph-vf { position: fixed; z-index: 91; }
+.tapmode .ph-vf .ph-vtop { top: calc(env(safe-area-inset-top, 0px) + 18px); left: 5vw; right: 5vw; flex-direction: row; align-items: center; }
+.tapmode .ph-chips { flex: 1; min-width: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); padding-right: 20px; }
+.tapmode .ph-chips::-webkit-scrollbar { display: none; }
+.tapmode .ph-chip { flex: none; }
+.tapmode .ph-vf .tl, .tapmode .ph-vf .tr { top: calc(env(safe-area-inset-top, 0px) + 84px); }
+.tapmode .ph-vf .bl, .tapmode .ph-vf .br { bottom: 96px; }
+.tapmode .ph-vf .ring { width: 84px; height: 84px; margin: -42px 0 0 -42px; }
+.tapmode .ph-vf .rd { bottom: 52px; font-size: 10px; }
