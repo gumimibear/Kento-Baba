@@ -136,10 +136,12 @@
 
   /* ---- quick loading screen: first visit in a session only ---- */
   (function () {
-    var seen = null;
-    try { seen = window.sessionStorage.getItem('kb-loaded'); } catch (e) {}
-    if (seen || KB.reduce) return;
-    try { window.sessionStorage.setItem('kb-loaded', '1'); } catch (e) {}
+    // Shows when you arrive from outside or reload the page — not when you come back from one of his own pages.
+    if (KB.reduce) return;
+    var nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {};
+    var fromInside = false;
+    try { fromInside = !!document.referrer && new URL(document.referrer).host === window.location.host; } catch (e) {}
+    if (nav.type === 'back_forward' || (fromInside && nav.type !== 'reload')) return;
     var P2 = function (a, r) { return (60 + Math.cos(a) * r).toFixed(1) + ',' + (60 + Math.sin(a) * r).toFixed(1); };
     var blades = '';
     for (var i = 0; i < 8; i++) {
@@ -155,23 +157,24 @@
         '<i class="fl"></i></div>');
     var ld = document.getElementById('ld'), nm = document.getElementById('ld-nm'), cn = document.getElementById('ld-n');
     var pool = 'ABCDEFGHJKLMNOPRSTUVWXYZ0123456789#/*+', t0 = performance.now(), done = false;
+    var DUR = KB.touch ? 650 : 900;   // quick: under a second
     var step = function (now) {
       var e = now - t0, out = '';
-      for (var k = 0; k < name.length; k++) out += (name[k] === ' ' || e > 220 + k * 70) ? name[k] : pool[Math.floor(Math.random() * pool.length)];
+      for (var k = 0; k < name.length; k++) out += (name[k] === ' ' || e > DUR * 0.2 + k * DUR * 0.06) ? name[k] : pool[Math.floor(Math.random() * pool.length)];
       nm.textContent = out;
-      cn.textContent = KB.pad(Math.min(36, Math.floor(e / 1100 * 36)));
-      if (e < 1150 && !done) requestAnimationFrame(step);
+      cn.textContent = KB.pad(Math.min(36, Math.floor(e / DUR * 36)));
+      if (e < DUR && !done) requestAnimationFrame(step);
     };
     requestAnimationFrame(function () { ld.classList.add('go'); requestAnimationFrame(step); });
     var finish = function () {
       if (done) return; done = true;
       nm.textContent = name; cn.textContent = '36';
       ld.classList.add('open');
-      setTimeout(function () { ld.classList.add('flash'); }, 220);
-      setTimeout(function () { ld.classList.add('out'); }, 320);
-      setTimeout(function () { ld.remove(); }, 1150);
+      setTimeout(function () { ld.classList.add('flash'); }, 140);
+      setTimeout(function () { ld.classList.add('out'); }, 220);
+      setTimeout(function () { ld.remove(); }, 900);
     };
-    setTimeout(finish, 1200);
+    setTimeout(finish, DUR + 60);
     ld.addEventListener('click', finish);
   })();
 

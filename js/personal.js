@@ -222,21 +222,21 @@
             '<path d="M640 230 L860 120 L900 120" stroke="rgba(242,166,90,.8)" fill="none"/><circle cx="640" cy="230" r="3" fill="#F2A65A"/><text x="860" y="108" fill="#EEEBF5">' + spec(1) + '</text>' +
             '<path d="M200 330 L90 330 L60 300" stroke="rgba(242,166,90,.8)" fill="none"/><circle cx="200" cy="330" r="3" fill="#F2A65A"/><text x="40" y="288" fill="#EEEBF5">' + spec(2) + '</text>' +
             '<path d="M760 468 L760 520 L900 520" stroke="rgba(242,166,90,.8)" fill="none"/><circle cx="760" cy="468" r="3" fill="#F2A65A"/><text x="760" y="545" fill="#EEEBF5">' + det(2) + '</text>' +
-            '<text x="500" y="530" fill="#F2A65A" text-anchor="middle" letter-spacing="3" class="ph-look">' + esc(KB.L({ en: 'CLICK THE LENS TO LOOK THROUGH', ja: 'レンズをクリックしてのぞく' })) + '</text>' +
+            '<text x="500" y="530" fill="#F2A65A" text-anchor="middle" letter-spacing="3" class="ph-look">' + esc(KB.touch ? KB.L({ en: 'TAP THE LENS TO LOOK THROUGH', ja: 'レンズをタップしてのぞく' }) : KB.L({ en: 'CLICK THE LENS TO LOOK THROUGH', ja: 'レンズをクリックしてのぞく' })) + '</text>' +
           '</g></svg>';
       return '<section class="ph-hero" id="ph-hero"><div class="ph-stage" id="ph-stage">' +
         '<div class="ph-reel"><div class="ph-strip sprockets" id="ph-strip"></div></div>' +
         '<div class="ph-vf" id="ph-vf"><i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i><i class="ring"></i>' +
           '<div class="ph-vtop"><div class="ph-chips" role="group" aria-label="Filter photos">' + chips + '</div>' +
             '<button type="button" class="ph-x" id="ph-x">' + esc(KB.L({ en: 'EXIT', ja: '閉じる' })) + ' ✕</button></div>' +
-          '<span class="rd">1/125&nbsp;&nbsp;F2.8&nbsp;&nbsp;ISO 400&nbsp;&nbsp;▸ <b id="ph-count">01</b> / <b id="ph-total">01</b>&nbsp;&nbsp;·&nbsp;&nbsp;' + esc(KB.L({ en: 'CLICK A PHOTO TO VIEW · SCROLL TO ADVANCE', ja: 'クリックで表示 · スクロールで次へ' })) + '</span></div>' +
+          '<span class="rd">1/125&nbsp;&nbsp;F2.8&nbsp;&nbsp;ISO 400&nbsp;&nbsp;▸ <b id="ph-count">01</b> / <b id="ph-total">01</b>&nbsp;&nbsp;·&nbsp;&nbsp;' + esc(KB.touch ? KB.L({ en: 'TAP TO VIEW · SWIPE', ja: 'タップで表示 · スワイプ' }) : KB.L({ en: 'CLICK A PHOTO TO VIEW · SCROLL TO ADVANCE', ja: 'クリックで表示 · スクロールで次へ' })) + '</span></div>' +
         '<div class="ph-cam" id="ph-cam"><div class="ph-tilt" id="ph-tilt">' + cam + '</div><button type="button" class="ph-lensbtn" id="ph-lensbtn" aria-label="' + esc(KB.L({ en: 'Look through the camera', ja: 'カメラをのぞく' })) + '"></button></div>' +
         '<header class="pp-top"><a class="logo" href="index.html#archive"><b>kb</b><span class="sub-l">' + ui('allWork') + '</span></a>' +
           '<span class="tr"><span>EXP ' + KB.expLabel() + ' / 36</span>' + KB.langBtn() + '</span></header>' +
         '<div class="ph-title" id="ph-title"><span class="pp-side micro" style="position:static">' + esc(sideLabel) + '</span>' +
           '<h1 class="ph-h1">' + t(P.title || K.title) + '</h1><p class="pp-hook">' + t(P.hook) + '</p>' +
           (credits ? '<dl class="pp-credits">' + credits + '</dl>' : '') + '</div>' +
-        '<span class="pp-cue micro" id="ph-cue" aria-hidden="true">' + esc(KB.L({ en: 'SCROLL TO LOOK THROUGH ↓', ja: 'スクロールでのぞく ↓' })) + '</span>' +
+        '<span class="pp-cue micro" id="ph-cue" aria-hidden="true">' + esc(KB.touch ? KB.L({ en: 'TAP THE LENS ↑', ja: 'レンズをタップ ↑' }) : KB.L({ en: 'SCROLL TO LOOK THROUGH ↓', ja: 'スクロールでのぞく ↓' })) + '</span>' +
       '</div></section>';
     }
     // Favourite frame: zoom in and move around like a map; the side bar shows where you are.
@@ -369,6 +369,8 @@
       var calls = svg.querySelector('.ph-call'), lensBtn = document.getElementById('ph-lensbtn');
       var phTop = phHero.querySelector('.pp-top');
       var still = KB.reduce, geo = {}, frs = [], shown = [], lastP = 0, mx = 0, my = 0, tx = 0, ty = 0;
+      // phones / small screens: tap the lens to open a swipeable gallery (lighter and easier than scroll-zoom)
+      var tap = !still && (KB.touch || window.innerWidth <= 720), reel = phHero.querySelector('.ph-reel'), isIn = false, fno = 0;
       // timeline (share of the pinned scroll): zoom in → photos → zoom back out to the camera
       var Z0 = 0.04, Z1 = 0.24, F0 = 0.3, F1 = 0.82, O0 = 0.86, O1 = 0.98;
       var build = function (filter) {
@@ -388,10 +390,14 @@
       };
       var measure = function () {
         var vh = window.innerHeight, vw = window.innerWidth;
+        if (tap && isIn) return;   // never re-measure while the phone gallery is open
         // measure the camera at rest — never while it's zoomed or tilted (that was the glitch)
+        var tr0 = cam.style.transition; cam.style.transition = 'none';
         cam.style.transform = 'none'; tilt.style.transform = 'none';
-        phHero.style.height = still ? '' : (vh * (2.6 + shown.length * 0.45)) + 'px';
+        void cam.offsetWidth; cam.style.transition = tr0;
+        phHero.style.height = (still || tap) ? '' : (vh * (2.6 + shown.length * 0.45)) + 'px';
         phHero.classList.toggle('static', still);
+        phHero.classList.toggle('tapmode', tap);
         // where the lens really is on screen (the drawing can be letterboxed inside its box)
         var sr = cam.getBoundingClientRect(), M = svg.getScreenCTM();
         var pt = svg.createSVGPoint(); pt.x = 500; pt.y = 318; pt = pt.matrixTransform(M);
@@ -405,6 +411,7 @@
         window.__phGeo = geo;
         lensBtn.style.left = (geo.cx - geo.r) + 'px'; lensBtn.style.top = (geo.cy - geo.r) + 'px'; lensBtn.style.width = lensBtn.style.height = (geo.r * 2) + 'px';
         if (frs.length) { var f0 = frs[0].getBoundingClientRect(); geo.fw = f0.width; geo.gap = frs.length > 1 ? frs[1].getBoundingClientRect().left - f0.left : f0.width; }
+        if (tap) { if (!isIn) strip.style.transform = 'translate3d(0,' + (geo.vy - vh / 2).toFixed(1) + 'px,0)'; return; }
         update();
       };
       var ease = function (x) { return x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x); };
@@ -414,7 +421,7 @@
         window.scrollTo({ top: top + span * p, behavior: KB.reduce ? 'auto' : 'smooth' });
       };
       var update = function () {
-        if (still || !geo.fw) return;
+        if (still || tap || !geo.fw) return;
         var vh = window.innerHeight, vw = window.innerWidth, p = progress(); lastP = p;
         var zin = ease((p - Z0) / (Z1 - Z0)), zout = ease((p - O0) / (O1 - O0));
         var z = zin * (1 - zout);
@@ -443,7 +450,13 @@
       };
       // a camera that feels alive: it leans toward the pointer, the LED blinks, light glints on the glass
       var idle = function (ts) {
-        if (!still && lastP < Z1) {
+        fno++;
+        if (tap && !isIn && fno % 3 === 0) {
+          var s3 = ts / 1000, pr3 = (s3 % 2.2) / 2.2;
+          led.setAttribute('opacity', (Math.sin(s3 * 3) > 0.2 ? 1 : 0.45).toFixed(2));
+          pulse.setAttribute('r', (118 + pr3 * 70).toFixed(1)); pulse.setAttribute('opacity', (0.8 * (1 - pr3)).toFixed(2));
+        }
+        if (!tap && !still && lastP < Z1) {
           tx += (mx * 4 - tx) * 0.08; ty += (-my * 3 - ty) * 0.08;
           var s2 = ts / 1000;
           led.setAttribute('opacity', (0.45 + 0.55 * (Math.sin(s2 * 3) > 0.2 ? 1 : 0)).toFixed(2));
@@ -458,17 +471,58 @@
       phHero.addEventListener('pointermove', function (e) { mx = e.clientX / window.innerWidth - 0.5; my = e.clientY / window.innerHeight - 0.5; });
       phHero.addEventListener('pointerleave', function () { mx = 0; my = 0; });
       // click the lens → zoom in; click the body → take a shot
-      lensBtn.addEventListener('click', function () { scrollToP(F0 + 0.002); });
+      var EASE = 'cubic-bezier(.6,0,.2,1)';
+      var openTap = function () {
+        if (isIn) return;
+        window.scrollTo(0, phHero.getBoundingClientRect().top + window.scrollY);
+        measure();
+        isIn = true;
+        var at = ' at ' + geo.vx.toFixed(1) + 'px ' + geo.vy.toFixed(1) + 'px)';
+        phHero.classList.add('inside');
+        reel.style.transition = 'none'; reel.style.clipPath = 'circle(' + geo.r.toFixed(1) + 'px' + at; reel.scrollLeft = 0;
+        void reel.offsetWidth;
+        reel.style.transition = 'clip-path .7s ' + EASE; strip.style.transition = 'transform .7s ' + EASE;
+        reel.style.clipPath = 'circle(150vmax' + at; strip.style.transform = 'translate3d(0,0,0)';
+        cam.style.transition = 'transform .7s ' + EASE + ', opacity .45s ease .25s';
+        cam.style.transform = 'scale(3)'; cam.style.opacity = '0';
+        vf.style.transition = 'opacity .35s ease .4s'; vf.style.opacity = '1'; vf.classList.add('on');
+        document.body.style.overflow = 'hidden';
+        cnt.textContent = '01';
+      };
+      var closeTap = function () {
+        if (!isIn) return;
+        var at = ' at ' + geo.vx.toFixed(1) + 'px ' + geo.vy.toFixed(1) + 'px)';
+        vf.style.transition = 'opacity .2s ease'; vf.style.opacity = '0'; vf.classList.remove('on');
+        reel.style.clipPath = 'circle(' + geo.r.toFixed(1) + 'px' + at;
+        reel.scrollTo({ left: 0, behavior: 'smooth' });
+        strip.style.transform = 'translate3d(0,' + (geo.vy - window.innerHeight / 2).toFixed(1) + 'px,0)';
+        cam.style.transition = 'transform .7s ' + EASE + ', opacity .3s ease';
+        cam.style.transform = 'none'; cam.style.opacity = '1';
+        setTimeout(function () {
+          isIn = false; phHero.classList.remove('inside'); reel.scrollLeft = 0;
+          reel.style.transition = ''; reel.style.clipPath = ''; strip.style.transition = ''; cam.style.transition = '';
+          document.body.style.overflow = '';
+        }, 720);
+      };
+      reel.addEventListener('scroll', function () {
+        if (!tap || !isIn || !geo.gap) return;
+        var i = Math.max(0, Math.min(frs.length - 1, Math.round(reel.scrollLeft / geo.gap)));
+        cnt.textContent = pad(i + 1);
+      }, { passive: true });
+      lensBtn.addEventListener('click', function () { if (tap) openTap(); else scrollToP(F0 + 0.002); });
       cam.addEventListener('click', function (e) {
         if (e.target === lensBtn) return;
         cam.classList.remove('flash'); void cam.offsetWidth; cam.classList.add('flash');
         KB.shoot();
       });
-      document.getElementById('ph-x').addEventListener('click', function () { scrollToP(1); });
+      document.getElementById('ph-x').addEventListener('click', function () { if (tap) closeTap(); else scrollToP(1); });
+      document.addEventListener('keydown', function (e) { if (tap && isIn && e.key === 'Escape' && document.getElementById('pp-lb').hidden) closeTap(); });
       vf.querySelectorAll('.ph-chip').forEach(function (c) {
         c.addEventListener('click', function () {
           vf.querySelectorAll('.ph-chip').forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); });
-          build(c.getAttribute('data-f')); measure();
+          build(c.getAttribute('data-f'));
+          if (tap) { reel.scrollLeft = 0; cnt.textContent = '01'; var f0 = frs[0].getBoundingClientRect(); if (frs[1]) geo.gap = frs[1].getBoundingClientRect().left - f0.left; return; }
+          measure();
           window.scrollTo({ top: phHero.getBoundingClientRect().top + window.scrollY + (phHero.offsetHeight - window.innerHeight) * F0 + 2, behavior: 'auto' });
           update();
         });
@@ -710,9 +764,9 @@
         document.getElementById('lb-lab').textContent = it.label;
         document.getElementById('lb-cap').textContent = it.cap || KB.L({ en: '[Caption]', ja: '［キャプション］' });
       };
-      var open = function (i) { lastFocus = document.activeElement; show(i); lb.hidden = false; document.body.style.overflow = 'hidden'; lb.querySelector('[data-lbx]').focus(); };
+      var prevOv = ''; var open = function (i) { lastFocus = document.activeElement; show(i); lb.hidden = false; prevOv = document.body.style.overflow; document.body.style.overflow = 'hidden'; lb.querySelector('[data-lbx]').focus(); };
       openLb = open;
-      var close = function () { lb.hidden = true; document.body.style.overflow = ''; if (lastFocus) lastFocus.focus(); };
+      var close = function () { lb.hidden = true; document.body.style.overflow = prevOv; if (lastFocus) lastFocus.focus(); };
       document.querySelectorAll('[data-lb]').forEach(function (b) { if (!b.closest('#ph-strip')) b.addEventListener('click', function () { open(+b.getAttribute('data-lb')); }); });
       lb.addEventListener('click', function (e) {
         if (e.target.closest('[data-lbx]') || e.target === lb) close();
