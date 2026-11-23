@@ -309,6 +309,14 @@
     });
   };
 
+  // Shrink a big headline so it always fits on one line.
+  KB.fitText = function (el, avail) {
+    if (!el || !avail) return;
+    el.style.fontSize = '';
+    var fs = parseFloat(window.getComputedStyle(el).fontSize), w = el.scrollWidth;
+    if (w > avail && w > 0) el.style.fontSize = Math.floor(fs * avail / w) + 'px';
+  };
+
   /* ---------- canvas helpers ---------- */
   KB.rgb = function (hex) {
     var m = /^#?([0-9a-f]{6})$/i.exec(hex || '');

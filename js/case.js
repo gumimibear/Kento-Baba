@@ -5,7 +5,10 @@
   var t = KB.t, ui = KB.ui, esc = KB.esc, L = KB.L;
   var K = KB.caseById(KB.param('id'));
   if (!K || !K.page) K = S.cases.filter(function (c) { return c.page; })[0];
-  var P = K.page, C = KB.chapter(K.chapter) || S.chapters[0];
+  var P = K.page, C = KB.chapter(K.chapter);  // null for personal projects
+  if ((P.layout === 'personal' || P.layout === 'photo') && KB.personal) { KB.personal(K); return; }
+  var backHref = C ? KB.chapterHref(C.id) : 'index.html#archive';
+  var tagLine = KB.L((S.chapterTags || {})[K.chapter]);
   // hover colours: blue, mint, violet, amber, pink (text colour on top of each)
   var TINT = [['70,86,220', '#FFFFFF'], ['140,255,193', '#13121C'], ['91,63,217', '#FFFFFF'], ['242,166,90', '#13121C'], ['236,92,170', '#13121C']];
   var STAT = [TINT[1], TINT[2], TINT[0], TINT[3]];
@@ -19,10 +22,10 @@
       '<canvas id="head-cv" aria-hidden="true"></canvas>' +
       '<div class="in wrap-read">' +
         '<header class="topbar"><span style="display:flex;gap:14px;align-items:baseline"><a class="logo" href="index.html" aria-label="kb — home"><b>kb</b></a>' +
-          '<a href="' + KB.chapterHref(C.id) + '" style="text-decoration:none"><span class="sub-l">← ' + esc(C.num) + ' · ' + esc(L(C.title).toUpperCase()) + '</span></a></span>' +
+          '<a href="' + backHref + '" style="text-decoration:none"><span class="sub-l">' + (C ? '← ' + esc(C.num) + ' · ' + esc(L(C.title).toUpperCase()) : ui('allWork')) + '</span></a></span>' +
           '<span style="display:flex;align-items:center;gap:16px"><span style="color:var(--soft)">EXP ' + KB.expLabel() + ' / 36</span>' + KB.langBtn() + '</span></header>' +
         '<div class="exit" style="max-width:600px;display:flex;flex-direction:column;gap:16px">' +
-          '<span class="kick kick-a">' + ui('caseKick', { n: C.num, code: K.code || '', cat: KB.cat(K.category) }) + '</span>' +
+          '<span class="kick kick-a">' + (C ? ui('caseKick', { n: C.num, code: K.code || '', cat: KB.cat(K.category) }) : esc(tagLine)) + '</span>' +
           '<h1 class="cs-title">' + t(P.title || K.title) + '</h1>' +
           '<p class="cs-hook">' + t(P.hook || K.line) + '</p>' +
         '</div>' +
@@ -75,17 +78,17 @@
   }).join('') + '</div>';
 
   /* ---- where next ---- */
-  var siblings = KB.casesOf(C.id), pos = siblings.indexOf(K), nxt = siblings[pos + 1] || null, nhref = nxt ? KB.caseHref(nxt) : null;
+  var siblings = KB.casesOf(K.chapter), pos = siblings.indexOf(K), nxt = siblings[pos + 1] || null, nhref = nxt ? KB.caseHref(nxt) : null;
   var nextRow = '';
   if (nxt) {
-    var inner = '<span class="dk">' + ui('nextInChapter', { code: nxt.code || '' }) + '</span><span class="dt">' + t(nxt.title) + (nhref ? '' : ui('soonSuffix')) + '</span>';
+    var inner = '<span class="dk">' + (C ? ui('nextInChapter', { code: nxt.code || '' }) : KB.t({ en: 'NEXT →', ja: '次へ →' })) + '</span><span class="dt">' + t(nxt.title) + (nhref ? '' : ui('soonSuffix')) + '</span>';
     nextRow = nhref ? '<a class="drow next" href="' + esc(nhref) + '">' + inner + '</a>' : '<div class="drow next soon">' + inner + '</div>';
   }
   var end =
     '<section class="dark-band">' +
       '<nav class="wrap-read dev" aria-label="More work" style="padding-top:56px;padding-bottom:24px">' +
-        '<div class="pn"><a class="drow" href="' + KB.chapterHref(C.id) + '"><span class="dk">' + ui('backToChapter', { n: C.num }) + '</span><span class="dt">' + t(C.cardTitle) + '</span></a>' + nextRow + '</div>' +
-        '<a class="drow flat" href="index.html#work"><span class="dk">' + ui('back') + '</span><span class="dt">' + ui('allWorkT') + '</span></a>' +
+        '<div class="pn">' + (C ? '<a class="drow" href="' + backHref + '"><span class="dk">' + ui('backToChapter', { n: C.num }) + '</span><span class="dt">' + t(C.cardTitle) + '</span></a>' : '') + nextRow + '</div>' +
+        '<a class="drow flat" href="' + (C ? 'index.html#work' : backHref) + '"><span class="dk">' + ui('back') + '</span><span class="dt">' + ui('allWorkT') + '</span></a>' +
       '</nav>' +
       '<div class="wrap-read" style="padding-top:24px;padding-bottom:40px">' + KB.footer() + '</div>' +
     '</section>';
@@ -100,6 +103,6 @@
   KB.reveal();
   KB.rolls();
   KB.heroScroll(document.querySelector('.dhero'));
-  var v = hdr.visual === 'stage' ? KB.vis.stage() : KB.vis.bubbles(hdr.route);
+  var v = KB.vis[hdr.visual] ? KB.vis[hdr.visual](hdr.route) : KB.vis.bubbles(hdr.route);
   KB.canvas(document.getElementById('head-cv'), v);
 })();

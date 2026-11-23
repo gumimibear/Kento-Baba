@@ -102,7 +102,9 @@
       '<div class="wrap sec-head dev" style="gap:16px 48px"><div class="stack"><span class="kick">' + ui('lensKick') + ' · ' + esc(P.camera) + '</span><h2 class="h2"><span class="mask"><span>' + ui('lensHead') + '</span></span></h2></div>' +
         '<p style="margin:0;max-width:440px;font-size:16px;line-height:1.7;color:var(--muted)">' + t(H.filmLine) + '</p></div>' +
       '<div class="strip-scroll dev"><div class="strip sprockets">' + frames + '</div></div>' +
-      '<p class="wrap micro" aria-hidden="true" style="margin-top:8px;text-align:right">' + ui('scroll') + '</p>' +
+      '<div class="wrap" style="margin-top:12px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px">' +
+        '<a class="btn btn-ghost" href="' + (KB.caseHref(KB.caseById('film-photography')) || '#lens') + '">' + ui('seeRoll') + ' <span class="arr" aria-hidden="true">→</span></a>' +
+        '<span class="micro" aria-hidden="true">' + ui('scroll') + '</span></div>' +
     '</section>';
 
   /* ---- toolkit ---- */
@@ -132,6 +134,47 @@
   document.getElementById('app').innerHTML = sticky + hero + intro + work + archive + sets + lens + tools + contact;
   KB.furniture({ contactHref: '#contact' });
 
+  /* ---- quick loading screen: first visit in a session only ---- */
+  (function () {
+    var seen = null;
+    try { seen = window.sessionStorage.getItem('kb-loaded'); } catch (e) {}
+    if (seen || KB.reduce) return;
+    try { window.sessionStorage.setItem('kb-loaded', '1'); } catch (e) {}
+    var P2 = function (a, r) { return (60 + Math.cos(a) * r).toFixed(1) + ',' + (60 + Math.sin(a) * r).toFixed(1); };
+    var blades = '';
+    for (var i = 0; i < 8; i++) {
+      var a0 = i * Math.PI / 4;
+      blades += '<polygon points="' + P2(a0, 56) + ' ' + P2(a0 + 0.9, 56) + ' ' + P2(a0 + 1.75, 16) + '" fill="#1C1A28" stroke="rgba(238,235,245,.4)" stroke-width=".8"/>';
+    }
+    var name = S.person.name.toUpperCase();
+    document.body.insertAdjacentHTML('beforeend',
+      '<div class="loader" id="ld" aria-hidden="true"><i class="h t"></i><i class="h b"></i>' +
+        '<div class="in"><svg class="iris" viewBox="0 0 120 120"><circle cx="60" cy="60" r="57" fill="none" stroke="rgba(140,255,193,.6)"/><g>' + blades + '</g></svg>' +
+          '<span class="nm" id="ld-nm">' + esc(name) + '</span><span class="ln"><i></i></span>' +
+          '<span class="ct"><span>' + esc(KB.L({ en: 'LOADING ROLL', ja: 'フィルム装填中' })) + '</span><b id="ld-n">00</b><span>/ 36</span></span></div>' +
+        '<i class="fl"></i></div>');
+    var ld = document.getElementById('ld'), nm = document.getElementById('ld-nm'), cn = document.getElementById('ld-n');
+    var pool = 'ABCDEFGHJKLMNOPRSTUVWXYZ0123456789#/*+', t0 = performance.now(), done = false;
+    var step = function (now) {
+      var e = now - t0, out = '';
+      for (var k = 0; k < name.length; k++) out += (name[k] === ' ' || e > 220 + k * 70) ? name[k] : pool[Math.floor(Math.random() * pool.length)];
+      nm.textContent = out;
+      cn.textContent = KB.pad(Math.min(36, Math.floor(e / 1100 * 36)));
+      if (e < 1150 && !done) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(function () { ld.classList.add('go'); requestAnimationFrame(step); });
+    var finish = function () {
+      if (done) return; done = true;
+      nm.textContent = name; cn.textContent = '36';
+      ld.classList.add('open');
+      setTimeout(function () { ld.classList.add('flash'); }, 220);
+      setTimeout(function () { ld.classList.add('out'); }, 320);
+      setTimeout(function () { ld.remove(); }, 1150);
+    };
+    setTimeout(finish, 1200);
+    ld.addEventListener('click', finish);
+  })();
+
   /* ---- archive behaviour ---- */
   var state = { cat: 'all', more: false };
   var rowsEl = document.getElementById('rows'), moreEl = document.getElementById('more-wrap');
@@ -140,7 +183,8 @@
     var shown = state.more ? list : list.slice(0, 6);
     var html = shown.map(function (c, k) {
       var href = KB.caseHref(c) || (KB.chapter(c.chapter) ? KB.chapterHref(c.chapter) : null);
-      var tag = href ? KB.L((S.chapterTags || {})[c.chapter]) + ' · ' + KB.cat(c.category) : KB.cat(c.category) + ' · ' + KB.L({ en: 'SOON', ja: '準備中' });
+      var chTag = KB.L((S.chapterTags || {})[c.chapter]), catTag = KB.cat(c.category);
+      var tag = (chTag && catTag.indexOf(chTag) !== 0 ? chTag + ' · ' : '') + catTag + (href ? '' : ' · ' + KB.L({ en: 'SOON', ja: '準備中' }));
       var inner = '<span class="n m">' + KB.pad(k + 1) + '</span><span class="main"><span class="tt jt">' + t(c.title) + '</span><span class="ln m">' + t(c.line) + '</span></span><span class="tag hi">' + esc(tag) + '</span>';
       return href ? '<a class="row" href="' + esc(href) + '">' + inner + '</a>' : '<div class="row is-soon">' + inner + '</div>';
     }).join('');
