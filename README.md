@@ -92,6 +92,11 @@ Sections a case page can use: `text` (paragraphs), `list`, `steps`, `cards`, `re
 
 ## 4. Fill-in checklist
 
+**Before anything else — permissions.** Check what you're allowed to show publicly:
+- [ ] QUT Japan — posts, reels, photos, numbers and partner names (ask the current committee)
+- [ ] Workato — anything from the internship (ask your manager)
+- [ ] Photos with people in them — ask the people
+
 Siree filled in everything she knew. These are yours:
 
 **Landing page**
@@ -115,8 +120,10 @@ Siree filled in everything she knew. These are yours:
 **Other QUT Japan projects** — Welcome Party, Partnerships & sponsors (how many / who), Social content, Leading the committee (team size)
 
 **Chapter 02 — Workato**
-- [ ] WOW Tokyo — your role, audience, one result
-- [ ] Content creation and graphic design — examples and results
+- [ ] WOW Tokyo — your role, venue, attendees / sessions / speakers, what you did before and on each day, photos, a highlights video, one result
+- [ ] WOW Tokyo "Hands-on with AI" terminal — only keep lines about things you actually did (training, demos, tools)
+- [ ] Field marketing work (content + design merged) — tools, post/design/campaign counts, the work wall (images in `items`, each tagged content / design / events), a real Global → Japan example (or delete that section), the steps, outcome, quote, reflection
+- [ ] Hands-on with AI (A3) — keep it only if you did real hands-on AI work; otherwise delete the `workato-ai` block in content.js
 - [ ] stats, timeline months, quote
 - [ ] Check with Workato what you're allowed to show publicly before adding internal work.
 
