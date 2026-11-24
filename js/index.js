@@ -97,6 +97,11 @@
       (ph ? '<div class="photo"><img src="' + esc(ph.src) + '" alt="' + esc(L(ph.alt) || [ph.place, ph.year].filter(Boolean).join(' ')) + '" loading="lazy"></div>' : '<div class="photo">[ PHOTO ' + n + ' ]</div>') +
       '<figcaption class="cap"><span>▸ ' + n + 'A</span><span>35MM · ISO 400</span><span>' + (ph ? esc([L(ph.place), ph.year].filter(Boolean).join(' · ').toUpperCase()) : ui('placeYear')) + '</span></figcaption></figure>';
   }
+  // the other off-duty pages (music, fashion, design…) as small links under the film strip
+  var offs = S.cases.filter(function (c) { return c.chapter === 'personal' && c.page && c.id !== 'film-photography'; });
+  var OFFC = ['140,255,193', '176,124,255', '242,166,90', '98,120,255'];
+  var moreOff = offs.length ? '<nav class="wrap offmore dev" aria-label="' + esc(L({ en: 'More off duty', ja: 'その他のオフの時間' })) + '"><span class="micro">' + esc(L({ en: 'ALSO OFF DUTY', ja: 'その他のオフの時間' })) + '</span>' +
+    offs.map(function (c, i) { return '<a class="offlink" href="' + esc(KB.caseHref(c)) + '" style="--c:' + OFFC[i % OFFC.length] + '"><i aria-hidden="true"></i>' + t(c.title) + '<span class="arr" aria-hidden="true">→</span></a>'; }).join('') + '</nav>' : '';
   var lens =
     '<section id="lens" class="sec" style="padding-left:0;padding-right:0">' +
       '<div class="wrap sec-head dev" style="gap:16px 48px"><div class="stack"><span class="kick">' + ui('lensKick') + ' · ' + esc(P.camera) + '</span><h2 class="h2"><span class="mask"><span>' + ui('lensHead') + '</span></span></h2></div>' +
@@ -105,6 +110,7 @@
       '<div class="wrap" style="margin-top:12px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px">' +
         '<a class="btn btn-ghost" href="' + (KB.caseHref(KB.caseById('film-photography')) || '#lens') + '">' + ui('seeRoll') + ' <span class="arr" aria-hidden="true">→</span></a>' +
         '<span class="micro" aria-hidden="true">' + ui('scroll') + '</span></div>' +
+      moreOff +
     '</section>';
 
   /* ---- toolkit ---- */
